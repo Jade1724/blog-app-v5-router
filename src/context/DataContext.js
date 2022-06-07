@@ -1,21 +1,13 @@
-import Header from "./Header";
-import Nav from "./Nav";
-import Footer from "./Footer";
-import Home from "./Home";
-import NewPost from "./NewPost";
-import PostPage from "./PostPage";
-import About from "./About";
-import Missing from "./Missing";
-import EditPost from "./EditPost";
+import { createContext, useState, useEffect } from "react";
 import { Route, Switch, useHistory } from "react-router-dom";
-import { useState, useEffect } from "react";
 import { format } from "date-fns";
-import api from "./api/posts";
-import useWindowSize from "./hooks/useWindowSize";
-import useAxiosFetch from "./hooks/useAxiosFetch";
-import { DataProvider } from "./context/DataContext";
+import api from "../api/posts";
+import useWindowSize from "../hooks/useWindowSize";
+import useAxiosFetch from "../hooks/useAxiosFetch";
 
-function App() {
+const DataContext = createContext();
+
+export const DataProvider = ({ children }) => {
   const [posts, setPosts] = useState([]);
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -86,23 +78,33 @@ function App() {
       console.log(`Error: ${err.message}`);
     }
   };
-  return (
-    <div className="App">
-      <DataProvider>
-        <Header title="React JS Blog" />
-        <Nav />
-        <Switch>
-          <Route exact path="/" component={Home} />
-          <Route exact path="/post" component={NewPost} />
-          <Route exact path="/edit/:id" component={EditPost} />
-          <Route path="/post/:id" component={PostPage} />
-          <Route path="/about" component={About} />
-          <Route path="*" component={Missing} />
-        </Switch>
-        <Footer />
-      </DataProvider>
-    </div>
-  );
-}
 
-export default App;
+  return (
+    <DataContext.Provider
+      value={{
+        width,
+        search,
+        setSearch,
+        searchResults,
+        fetchError,
+        isLoading,
+        handleSubmit,
+        postTitle,
+        setPostTitle,
+        postBody,
+        setPostBody,
+        posts,
+        handleEdit,
+        editBody,
+        setEditBody,
+        editTitle,
+        setEditTitle,
+        handleDelete
+      }}
+    >
+      {children}
+    </DataContext.Provider>
+  );
+};
+
+export default DataContext;
